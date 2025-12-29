@@ -1,0 +1,11 @@
+lightning_logs/
+wandb/
+*.ckpt
+*.pth
+*.pt
+
+__pycache__/
+*.py[cod]
+*$py.class
+
+wandb/
