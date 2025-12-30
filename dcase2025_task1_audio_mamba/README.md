@@ -2,7 +2,7 @@
 
 **DCASE2025 - Task 1 - Audio Mamba Implementation**
 
-Contact: **Abdalaziz Ayoub** ([your.email@institution.edu])
+Contact: **Abdalaziz Ayoub** - K12341559@students.jku.at
 
 ---
 
@@ -101,7 +101,7 @@ target_length = 1024
 ### 1. Clone Repositories
 ```bash
 # Clone this repository
-git clone [your-repo-url]
+git clone https://github.com/abdalazizayoub/audio-mamba-asc
 cd dcase2025_task1_audio_mamba
 
 # Clone Audio Mamba dependency (if not already available)
@@ -307,8 +307,7 @@ This project inherits the license from the original DCASE2025 baseline repositor
 ## Contact
 
 For questions or issues specific to this Audio Mamba implementation:
-- **Abdalaziz Ayoub** - [your.email@institution.edu]
-
+- **Abdalaziz Ayoub** - K12341559@students.jku.at
 For questions about the original baseline:
 - **Florian Schmid** - florian.schmid@jku.at
 
