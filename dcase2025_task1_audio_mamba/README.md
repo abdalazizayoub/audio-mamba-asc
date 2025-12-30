@@ -70,7 +70,7 @@ Audio Mamba applies the Mamba state-space model architecture to audio classifica
 ```python
   import AUM.src.models.mamba_models as mamba_models
 ```
-  Ensure the [AUM repository](https://github.com/xieyumc/AUM) is cloned in the parent directory or adjust the import path accordingly.
+  Ensure the [AUM repository](https://github.com/kaistmm/Audio-Mamba-AuM/tree/main) is cloned in the parent directory or adjust the import path accordingly.
 
 ---
 
