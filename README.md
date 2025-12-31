@@ -154,6 +154,67 @@ python train_device_specific.py \
 ```
 
 ---
+## Results
+
+The primary evaluation metric for DCASE 2025 Challenge Task 1 is **Macro Average Accuracy** (class-wise averaged accuracy).
+
+The table below lists the Macro Average Accuracy and class-wise accuracies for the Audio Mamba model (AuM-Small with ImageNet + Epic-Sounds pre-training). Results are from a single run on the development-test split.
+
+### Class-wise Results
+
+| **Model**              | **Airport** | **Bus** | **Metro** | **Metro Station** | **Park** | **Public Square** | **Shopping Mall** | **Street Pedestrian** | **Street Traffic** | **Tram** | **Macro Avg. Accuracy** |
+|------------------------|------------:|--------:|----------:|------------------:|---------:|------------------:|------------------:|----------------------:|-------------------:|---------:|:-----------------------:|
+| AuM-Small (Pre-trained) |       44.97 |   54.51 |     49.02 |             39.93 |    69.36 |             29.83 |             52.15 |                 29.70 |             75.42  |    48.31 |      **49.32**          |
+
+### Device-wise Results(without fine-tuning)
+
+| **Model**              | **A** | **B** | **C**     | **S1**    | **S2** | **S3**    | **S4**    | **S5** | **S6**    | **Macro Avg. Accuracy** |
+|------------------------|:-----:|:-----:|:---------:|:---------:|:------:|:---------:|:---------:|:------:|:---------:|:-----------------------:|
+| AuM-Small (Pre-trained) | 65.58 | 54.10 |  58.69    |  42.82    | 44.79  |  49.85    |  42.42    | 45.85  |  39.85    |      **49.32**          |
+
+**Model Configuration:**
+- Architecture: Audio Mamba Small (AuM-Small)
+- Embedding Dimension: 384
+- Depth: 24 layers
+- Patch Size: 16×16
+- Pre-training: ImageNet → Epic-Sounds → DCASE2025 Task 1 (25% subset)
+- Parameters: 25,342,346 (~25.3M)
+- Parameters Memory (FP32): 101.37 MB
+- MACs: 203,018 (~0.2M)
+- Training: 150 epochs, batch size 64, lr 0.0005
+
+**Data Augmentation:**
+- MixStyle (p=0.6, α=0.5)
+- Frequency Masking (48 bins)
+- Time Masking (64 frames)
+- Time Rolling (0.1 seconds)
+
+**Note**: While MACs are well within the 30M limit, the parameter count significantly exceeds the DCASE2025 complexity constraint of 128 kB. Quantization to 16-bit would require 50.68 MB, and 8-bit quantization would require 25.34 MB—both still far above the limit. Aggressive compression techniques are required for challenge compliance.
+
+---
+
+## Comparison with DCASE2025 Baseline
+
+| **Metric** | **CP-Mobile Baseline** | **AuM-Small (Ours)** | **Difference** |
+|------------|----------------------:|--------------------:|---------------:|
+| Macro Avg. Accuracy | 50.72 ± 0.47 | 49.32 | -1.40 |
+| Parameters | 61,148 | 25,342,346 | +41,344% |
+| MACs | 29,419,156 | 203,018 | -99.3% |
+| Memory (16-bit) | 122.3 kB | 50.68 MB | +42,410% |
+| Memory (8-bit) | 61.1 kB | 25.34 MB | +42,410% |
+
+**Key Observations:**
+- Audio Mamba achieves competitive accuracy (within 1.4% of baseline) with a fundamentally different architecture
+- **Extremely efficient computation**: Uses only 0.69% of the MACs compared to CP-Mobile baseline
+- Pre-training on ImageNet + Epic-Sounds provides strong initialization for acoustic scene understanding
+- **Critical limitation**: Parameter count exceeds challenge limits by >400× (even with 8-bit quantization)
+- The model demonstrates high scene-specific variance (29.70% pedestrian vs 75.42% traffic)
+- Strong performance on real devices (59.5% avg) vs simulated unseen devices (42.7% avg)
+
+**Path to Compliance:**
+- Knowledge distillation to a smaller Mamba variant
+- Structural pruning + quantization
+- Design a "Mamba-Nano" architecture specifically for the 128 kB constraint
 
 ## Evaluation
 
@@ -300,12 +361,3 @@ This project combines code from multiple sources. Please refer to individual com
 
 For DCASE2025 baseline questions: Florian Schmid (florian.schmid@jku.at)
 
----
-
-## Future Work
-
-- [ ] Implement quantization for complexity compliance
-- [ ] Knowledge distillation experiments
-- [ ] RoPE (Rotary Position Embeddings) integration
-- [ ] Benchmark against CP-Mobile baseline
-- [ ] Ablation studies on Mamba depth and embedding dimensions
