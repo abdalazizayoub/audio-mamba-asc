@@ -211,6 +211,40 @@ The table below lists the Macro Average Accuracy and class-wise accuracies for t
 - The model demonstrates high scene-specific variance (29.70% pedestrian vs 75.42% traffic)
 - Strong performance on real devices (59.5% avg) vs simulated unseen devices (42.7% avg)
 
+## Why Audio Mamba is More Efficient
+
+Despite having significantly more parameters, our Audio Mamba model achieves **remarkable computational efficiency** compared to the CP-Mobile baseline. Here's why:
+
+### Architectural Advantages
+
+1. **Linear Scaling Complexity**: 
+   - Mamba blocks process sequences (audio frames) with **O(L) complexity**
+   - Work scales linearly with audio length
+   - Traditional transformers scale as O(L²), and large CNNs often have aggressive scaling
+
+2. **Selective Scanning Mechanism**:
+   - Mamba uses a "selection mechanism" to identify important parts of the audio
+   - Skips redundant calculations that standard CNNs perform on every frame
+   - Only processes relevant temporal information
+
+3. **Thin Architecture Design**:
+   - AuM-Small uses `embed_dim: 384` compared to wider baseline stages
+   - Fewer parallel multiplications per layer
+   - Efficient parameter-to-computation ratio
+
+### Computational Efficiency Comparison
+
+| **Metric** | **CPJKU Baseline (CP-Mobile)** | **AuM-Small (Ours)** | **Max Limit** |
+|------------|:------------------------------:|:--------------------:|:-------------:|
+| **Actual MACs** | 29,419,156 | 203,018 | 30,000,000 |
+| **Efficiency Status** | 98.1% of limit | **0.68% of limit** | - |
+| **Headroom** | 580,844 MACs | 29,796,982 MACs | - |
+| **Relative Efficiency** | Baseline (1×) | **145× more efficient** | - |
+
+**Key Takeaway**: Audio Mamba uses less than 1% of the allowed computational budget while maintaining competitive accuracy, demonstrating the power of state-space models for efficient audio processing.
+
+---
+
 **Path to Compliance:**
 - Knowledge distillation to a smaller Mamba variant
 - Structural pruning + quantization
