@@ -269,6 +269,14 @@ Classification Head:
 
 ### MACs Calculation Methodology
 
+⚠️ **Note on MACs Calculation:**
+Standard profiling tools (TorchInfo, FLOPs counter) cannot measure the custom CUDA kernels 
+in Mamba's selective scan operations. The reported MACs (23.56M) are calculated manually by 
+analyzing the operations in each layer of the [Audio Mamba architecture](https://github.com/kaistmm/Audio-Mamba-AuM). 
+This includes patch embedding, all linear projections, convolutions, and SSM computations across 
+24 bidirectional Mamba blocks. The calculation methodology is detailed in the Model Complexity 
+Analysis section above.
+
 The computational complexity (MACs) for Audio Mamba is calculated using the following components:
 
 **Total MACs Formula:**
