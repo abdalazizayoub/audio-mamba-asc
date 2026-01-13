@@ -275,7 +275,7 @@ in Mamba's selective scan operations. The reported MACs (23.56M) are calculated 
 analyzing the operations in each layer of the [Audio Mamba architecture](https://github.com/kaistmm/Audio-Mamba-AuM). 
 This includes patch embedding, all linear projections, convolutions, and SSM computations across 
 24 bidirectional Mamba blocks. The calculation methodology is detailed in the Model Complexity 
-Analysis section above.
+Analysis section below.
 
 The computational complexity (MACs) for Audio Mamba is calculated using the following components:
 
