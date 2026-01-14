@@ -67,7 +67,7 @@ audio-mamba-asc/
 
 | Model | Embed Dim | Depth | Parameters | MACs |
 |-------|-----------|-------|------------|------|
-| AuM-Small | 384 | 24 | ~25.3M | 23.57M |
+| AuM-Small | 384 | 24 | ~25.3M | 14.81 M|
 | AuM-Base | 768 | 24 | ~86M | TBD |
 
 ---
