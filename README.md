@@ -200,7 +200,7 @@ The table below lists the Macro Average Accuracy and class-wise accuracies for t
 |------------|----------------------:|--------------------:|---------------:|
 | Macro Avg. Accuracy | 50.72 ± 0.47 | 49.32 | -1.40 |
 | Parameters | 61,148 | 25,342,346 | +41,344% |
-| MACs | 29,419,156 | 23,565,800 | -19.9% |
+| MACs | 29,419,156 | 14,810,500** | -49.6% |
 | Memory (16-bit) | 122.3 kB | 50.68 MB | +42,410% |
 | Memory (8-bit) | 61.1 kB | 25.34 MB | +42,410% |
 
@@ -278,46 +278,94 @@ This includes patch embedding, all linear projections, convolutions, and SSM com
 Analysis section below.
 
 The computational complexity (MACs) for Audio Mamba is calculated using the following components:
+## Model Complexity Analysis
 
-**Total MACs Formula:**
-```
-Total MACs = MACs_PatchEmbed + (Depth × MACs_Block) + MACs_Head
-```
+### Total MACs Formula
 
-#### A. Patch Embedding
-Converts the input spectrogram into tokens using 2D convolution.
+Total MACs = MACs_PatchEmbed + (Depth × MACs_MambaBlock) + MACs_Head
 
-- **Formula:** `L × (patch_h × patch_w) × d`
-- **Calculation:** `1024 × (16 × 16) × 384 = 100.6 MMACs`
 
-#### B. Mamba Block (Core Processing)
-Each Mamba block processes the token sequence with the following complexity:
+---
 
-- **Formula (Modern Mamba):** `L × (3Ed² + Ed(2N + k + 1) + 9EdN)`
-- **Simplified (E=2, N=16, k=4):** `L × (6d² + 181d)`
-- **Per Block:** `1024 × (6 × 384² + 181 × 384) = 977.7 MMACs`
-- **All Blocks (Depth=24):** `24 × 977.7 = 23,464.8 MMACs`
+### A. Patch Embedding
+Converts the input spectrogram into tokens using a 2D convolution.
 
-#### C. Classifier Head
-Final LayerNorm and Linear layer for 10-class classification.
+- Input size: 256 × 1024
+- Patch size / stride: 16 × 16
+- Input channels: 1
+- Number of patches: 16 × 64 = 1024
+- Embedding dimension: d = 384
 
-- **Formula:** `(L × d) + (d × n_classes)`
-- **Calculation:** `(1024 × 384) + (384 × 10) ≈ 0.4 MMACs` (Negligible)
+- **Formula:**  
+  `L × patch_h × patch_w × C_in × d`
+
+- **Calculation:**  
+  `1024 × 16 × 16 × 1 × 384 = 100.7 MMACs`
+
+---
+
+### B. Bidirectional Mamba Block (Core Processing)
+
+The model uses `MambaSimple` with **bidirectional selective scan** and **fused CUDA kernels**.  
+The dominant computational cost comes from linear projections, with smaller contributions from depthwise convolution and state updates.
+
+For one Mamba block:
+
+- Linear projections (bidirectional, fused): `≈ 4d²`
+- SSM + depthwise convolution: `≈ d × (d_state + d_conv)`
+
+With `d = 384`, `d_state = 16`, `d_conv = 4`:
+
+- **Per token MACs:**  
+
+4 × 384² + 384 × (16 + 4) ≈ 597,504 MACs
+
+
+- Sequence length: `L = 1025` (1024 patch tokens + 1 CLS token)
+
+- **Per block MACs:**  
+
+1025 × 597,504 ≈ 612.9 MMACs
+
+
+- **All blocks (depth = 24):**  
+
+24 × 612.9 ≈ 14,709.6 MMACs
+
+
+---
+
+### C. Classification Head
+
+After global average pooling, the classifier consists of two linear layers:
+
+- 384 → 512  
+- 512 → 10
+
+- **MACs:**  
+
+384 × 512 + 512 × 10 ≈ 0.20 MMACs
+
+
+*(Negligible compared to the backbone)*
+
+---
 
 ### Final Complexity for AuM-Small
 
 | **Component** | **MACs** | **Percentage** |
 |---------------|----------:|---------------:|
-| Patch Embedding | 100.6 MMACs | 0.43% |
-| Mamba Blocks (×24) | 23,464.8 MMACs | 99.57% |
-| Classifier Head | 0.4 MMACs | <0.01% |
-| **Total** | **23,565.8 MMACs** | **100%** |
+| Patch Embedding | 100.7 MMACs | 0.68% |
+| Mamba Blocks (×24) | 14,709.6 MMACs | 99.31% |
+| Classifier Head | 0.2 MMACs | <0.01% |
+| **Total** | **14,810.5 MMACs** | **100%** |
 
 **Complexity Status:**
-- **Actual MACs:** 23.57 Million (23,565,800)
-- **DCASE2025 Limit:** 30 Million
-- **Utilization:** 78.6% of allowed budget
-- **Headroom:** 6.43 Million MACs remaining
+
+- **Actual MACs:** 14.81 Million  
+- **DCASE2025 Limit:** 30 Million  
+- **Utilization:** 49.4% of allowed budget  
+- **Headroom:** 15.2 Million MACs remaining
 
 ⚠️ **Note:** The initial W&B logged value of 203,018 MACs was incorrect due to incomplete complexity profiling. The corrected calculation above accounts for all Mamba block operations including the gated branch mechanisms.
 
