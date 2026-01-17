@@ -181,7 +181,7 @@ The table below lists the Macro Average Accuracy and class-wise accuracies for t
 - Pre-training: ImageNet → Epic-Sounds → DCASE2025 Task 1 (25% subset)
 - Parameters: 25,342,346 (~25.3M)
 - Parameters Memory (FP32): 101.37 MB
-- MACs: 23,565,800 (~23.57M)
+- MACs: 14,810,500(~ 14.81 M)
 - Training: 150 epochs, batch size 64, lr 0.0005
 
 **Data Augmentation:**
