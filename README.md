@@ -458,8 +458,7 @@ This project combines code from multiple sources. Please refer to individual com
 
 ## Contact
 
-**[Your Name]**  
-📧 [your.email@institution.edu]  
-🔗 [GitHub](https://github.com/[your-username])
+**[Abdalaziz Ayoub]**  
+📧 [k12341559@students.jku.at]  
 
 For DCASE2025 baseline questions: Florian Schmid (florian.schmid@jku.at)
