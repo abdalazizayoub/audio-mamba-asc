@@ -2,7 +2,7 @@
 
 **DCASE2025 - Task 1 - Audio Mamba Implementation**
 
-[![GitHub](https://img.shields.io/badge/GitHub-audio--mamba--asc-blue)](https://github.com/[your-username]/audio-mamba-asc)
+[![GitHub](https://img.shields.io/badge/GitHub-audio--mamba--asc-blue)](https://github.com/abdalazizayoub/audio-mamba-asc)
 
 ---
 
@@ -76,7 +76,7 @@ audio-mamba-asc/
 
 ### 1. Clone Repository
 ```bash
-git clone https://github.com/[your-username]/audio-mamba-asc.git
+git clone https://github.com/abdalazizayoub/audio-mamba-asc.git
 cd audio-mamba-asc
 ```
 
